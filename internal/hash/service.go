@@ -1,25 +1,15 @@
 package hash
 
 import (
-	"context"
-
-	hash "github.com/Andrets/grpc-go-hash-microservice/pkg/hash_v1"
+	"golang.org/x/crypto/bcrypt"
 )
 
-type HashService struct{}
-
-func NewService() *HashService {
-	return &HashService{}
+func HashPassword(password string) (string, error) {
+	bytes, err := bcrypt.GenerateFromPassword([]byte(password), 14)
+	return string(bytes), err
 }
 
-func (s *HashService) HashPassword(ctx context.Context, req *hash.HashPasswordRequest) (*hash.HashPasswordResponse, error) {
-	return &hash.HashPasswordResponse{
-		Hashedpassword: "hashed_password_here",
-	}, nil
-}
-
-func (s *HashService) ValidatePassword(ctx context.Context, req *hash.ValidatePasswordRequest) (*hash.ValidatePasswordResponse, error) {
-	return &hash.ValidatePasswordResponse{
-		IsValid: true,
-	}, nil
+func ValidatePassword(userPassword string, hashedPassword string) bool {
+	err := bcrypt.CompareHashAndPassword([]byte(hashedPassword), []byte(userPassword))
+	return err == nil
 }
